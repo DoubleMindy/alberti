@@ -103,9 +103,12 @@ def Alberti_fifth(alpha, key, text, password, decode = True):
     
 
 if __name__ == '__main__':
+    
     alf = ['А','Б','В','Г','Д','Е','Ж','З','И','Й','К','Л','М','Н','О','П','Р','С','Т','У','Ф','Х','Ц','Ч','Ш','Щ','Ъ','Ы','Ь','Э','Ю','Я']
     k = input('Enter key (split it with spaces): ').split(' ')
-    if ((len(alf) == len(k)) and (set(k) == k) and (k in alpha)):
+    checker = [i for i in k if i in alf]
+    
+    if ((len(alf) == len(k)) and (len(set(k)) == len(k)) and (len(checker) == len(k))):
         mode = input('Input disk mode (1, 2, 3, 4, 5): ')
         decode = input('Do you decode text? (print \'Д\' if so, and \'Н\' if not): ')
         if decode == 'Д':
