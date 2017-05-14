@@ -1,11 +1,10 @@
 __author__ = 'Timokhin Ilya'
 __license__ = 'SCS-152, HSE MIEM 2017'
-
 import sys
-import random
 import math
+import random
 from PyQt5.QtWidgets import (QWidget, QLabel, QPushButton, QLineEdit,
-    QInputDialog, QApplication, QCheckBox)
+    QInputDialog, QApplication, QCheckBox, QComboBox)
 
 def  rotation(a, pos):
     return a[-pos:] + a[:-pos]
@@ -29,32 +28,33 @@ def cicle_rotation(text, alpha, new_key, decode = True):
                 new_key = rotation(new_key, 1)    
     return ''.join(cipher)
 
-def Alberti_first(alpha, key, text, decode = True):
+def Alberti_first(alpha, key, text, decode):
     key = rotation(key, abs(alpha.index(text[0]) - key.index(text[0])))
     if decode == False:
         return cicle_rotation(text, alpha, key, decode = False)
     else:
         return cicle_rotation(text, alpha, key)
-def Alberti_second(alpha, key, text, decode = True):
+    
+def Alberti_second(alpha, key, text, decode):
     if decode == False:
         key = rotation(key, len(alpha)-key.index(text[0]))   
     else:
         key = rotation(key, 10)
-        while(alpha.index(alpha[key.index(alpha[key.index(OT[0])])]) != 0):
+        while(alpha.index(alpha[key.index(alpha[key.index(text[0])])]) != 0):
                    key = rotation(key, 1)
     if decode == False:
         return cicle_rotation(text, alpha, key, decode = False)
     else:
         return cicle_rotation(text, alpha, key)
-     
-def Alberti_third(alpha, key, text, ind, decode = True):
+
+def Alberti_third(alpha, key, text, ind, decode):
     key = rotation(key, abs(key.index(ind)) - alpha.index(alpha[0]))
     if decode == False:
         return cicle_rotation(text, alpha, key, decode = False)
     else:
         return cicle_rotation(text, alpha, key)
 
-def Alberti_fourth(alpha, key, text, decode = True, period = 0):
+def Alberti_fourth(alpha, key, text, decode, period):
     cipher = []
     if decode == True:
         for letter in text:
@@ -65,16 +65,16 @@ def Alberti_fourth(alpha, key, text, decode = True, period = 0):
 
     if decode == False:
         random_state_letters = []
-        j = 0
+        x = 0
         for i in range(0, len(text)//period+1):
             random_state_letters.append(alpha[random.randint(0, len(alpha)-1)])
         for letter in range(0, 1+len(text)+ len(text)//(period)):
             if letter%(period+1) == 0:
-                cipher.append(random_state_letters[j])
-                key = rotate_to_A(alpha, key, random_state_letters[j])
-                j += 1
+                cipher.append(random_state_letters[x])
+                key = rotate_to_A(alpha, key, random_state_letters[x])
+                x += 1
             else:
-                cipher.append(key[alpha.index(text[letter-j])].lower())
+                cipher.append(key[alpha.index(text[letter-x])].lower())
     return ''.join(cipher)
 
 def Alberti_fifth(alpha, key, text, password, decode = True):
@@ -108,8 +108,13 @@ class Disk(QWidget):
         self.initUI()
 
     def initUI(self):
+
+        self.combo = QComboBox(self)
+        self.combo.addItems(["Mode 1", "Mode 2",
+                        "Mode 3", "Mode 4", "Mode 5"])
+        self.combo.move(30, 270)
         
-        self.cb = QCheckBox('(Decode text)', self)
+        self.cb = QCheckBox('Decode text', self)
         self.cb.move(30, 250)
 
         lblk = QLabel('Enter key: ', self)
@@ -133,6 +138,24 @@ class Disk(QWidget):
         self.btn = QPushButton('DO', self)
         self.btn.move(30, 300)
 
+        lbltx = QLabel('Enter indicator (for 3-rd mode): ', self)
+        lbltx.move(30, 340)
+
+        self.indic = QLineEdit(self)
+        self.indic.setGeometry(30, 360, 30, 20)
+
+        lblper = QLabel('Enter period (for 4-th mode): ', self)
+        lblper.move(30, 380)
+
+        self.p = QLineEdit(self)
+        self.p.setGeometry(30, 400, 30, 20)
+        
+        lblpas = QLabel('Enter period (for 5-th mode): ', self)
+        lblpas.move(30, 420)
+
+        self.pas = QLineEdit(self)
+        self.pas.setGeometry(30, 440, 150, 20)
+        
         self.btn.clicked.connect(self.showDialog)
         
         self.setGeometry(300, 300, 500, 500)
@@ -142,13 +165,46 @@ class Disk(QWidget):
 
     def showDialog(self):
         alf = ['А','Б','В','Г','Д','Е','Ж','З','И','Й','К','Л','М','Н','О','П','Р','С','Т','У','Ф','Х','Ц','Ч','Ш','Щ','Ъ','Ы','Ь','Э','Ю','Я']
-        self.k = self.k.text().upper().split(' ')
-        checker = [i for i in self.k if i in alf]
-        if ((len(alf) == len(self.k)) and (len(set(self.k)) == len(self.k)) and (len(checker) == len(self.k)) and (len(self.txt.text()) > 0)):
+        j = self.k.text().upper().split(' ')
+        checker = [i for i in self.k.text().upper().split(' ') if i in alf]
+        if ((len(alf) == len(j)) and (len(set(j)) == len(j)) and (len(checker) == len(j)) and (len(self.txt.text()) > 0)):
             if self.cb.isChecked() == True:
-                self.res.setText(str(Alberti_first(alf, self.k, self.txt.text().upper(), decode = True)))
+                
+                if self.combo.currentText() == "Mode 1": 
+                    self.res.setText(str(Alberti_first(alf, j, self.txt.text().upper(), decode = True)))
+                    
+                if self.combo.currentText() == "Mode 2": 
+                    self.res.setText(str(Alberti_second(alf, j, self.txt.text().upper(), decode = True)))
+                    
+                if self.combo.currentText() == "Mode 3":                   
+                    self.res.setText(str(Alberti_third(alf, j, self.txt.text().upper(), self.indic.text().upper(), decode = True)))
+                    
+                if self.combo.currentText() == "Mode 4":
+                    decode = True
+                    s = self.k.text().split(' ')
+                    self.res.setText(str(Alberti_fourth(alf, j, self.txt.text(), decode, self.p.text())))
+                    
+                if self.combo.currentText() == "Mode 5":
+                    self.res.setText(str(Alberti_fifth(alf, j, self.txt.text().upper(), self.pas.text().upper(), decode = True)))
+                    
             else:
-                self.res.setText(str(Alberti_first(alf, self.k, self.txt.text().upper(), decode = False)))
+                
+                if self.combo.currentText() == "Mode 1": 
+                    self.res.setText(str(Alberti_first(alf, j, self.txt.text().upper(), decode = False)))
+                    
+                if self.combo.currentText() == "Mode 2": 
+                    self.res.setText(str(Alberti_second(alf, j, self.txt.text().upper(), decode = False)))
+                    
+                if self.combo.currentText() == "Mode 3": 
+                    self.res.setText(str(Alberti_third(alf, j, self.txt.text().upper(), self.indic.text().upper(), decode = False)))
+                    
+                if self.combo.currentText() == "Mode 4":
+                    decode = False
+                    s = self.k.text().split(' ')
+                    self.res.setText(str(Alberti_fourth(alf, j, self.txt.text(), decode, int(self.p.text()))))
+                    
+                if self.combo.currentText() == "Mode 5":
+                    self.res.setText(str(Alberti_fifth(alf, j, self.txt.text().upper(), self.pas.text().upper(), decode = False)))
         else:
             self.res.setText('Invalid input!')    
         
