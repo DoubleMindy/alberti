@@ -135,8 +135,8 @@ class Disk(QWidget):
         self.res = QLineEdit(self)
         self.res.setGeometry(30, 170, 400, 52)
 
-        self.btn = QPushButton('DO', self)
-        self.btn.move(30, 300)
+        self.btn = QPushButton('Code it!', self)
+        self.btn.setGeometry(30, 295, 250, 42)
 
         lbltx = QLabel('Enter indicator (for 3-rd mode): ', self)
         lbltx.move(30, 340)
@@ -155,6 +155,10 @@ class Disk(QWidget):
 
         self.pas = QLineEdit(self)
         self.pas.setGeometry(30, 440, 150, 20)
+
+        self.lang = QComboBox(self)
+        self.lang.addItems(["Русский", "English"])
+        self.lang.setGeometry(100, 270, 90, 22)
         
         self.btn.clicked.connect(self.showDialog)
         
@@ -164,7 +168,14 @@ class Disk(QWidget):
 
 
     def showDialog(self):
-        alf = ['А','Б','В','Г','Д','Е','Ж','З','И','Й','К','Л','М','Н','О','П','Р','С','Т','У','Ф','Х','Ц','Ч','Ш','Щ','Ъ','Ы','Ь','Э','Ю','Я']
+        
+        alp_eng =['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
+        alp = ['А','Б','В','Г','Д','Е','Ж','З','И','Й','К','Л','М','Н','О','П','Р','С','Т','У','Ф','Х','Ц','Ч','Ш','Щ','Ъ','Ы','Ь','Э','Ю','Я']
+        if self.lang.currentText() == "Русский":
+            alf = alp
+        else:
+            alf = alp_eng
+            
         j = self.k.text().upper().split(' ')
         checker = [i for i in self.k.text().upper().split(' ') if i in alf]
         if ((len(alf) == len(j)) and (len(set(j)) == len(j)) and (len(checker) == len(j)) and (len(self.txt.text()) > 0)):
