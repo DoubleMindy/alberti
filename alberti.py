@@ -37,9 +37,9 @@ def Alberti_first(alpha, key, text, decode):
     
 def Alberti_second(alpha, key, text, decode):
     if decode == False:
-        key = rotation(key, len(alpha)-key.index(text[0]))   
+        key = rotation(key, abs(len(alpha)-key.index(text[0])))   
     else:
-        key = rotation(key, 10)
+        key = rotation(key, math.ceil(len(alpha)/2)) 
         while(alpha.index(alpha[key.index(alpha[key.index(text[0])])]) != 0):
                    key = rotation(key, 1)
     if decode == False:
@@ -70,7 +70,7 @@ def Alberti_fourth(alpha, key, text, decode, period):
             random_state_letters.append(alpha[random.randint(0, len(alpha)-1)])
         for letter in range(0, 1+len(text)+ len(text)//(period)):
             if letter%(period+1) == 0:
-                cipher.append(random_state_letters[x])
+                cipher.append(random_state_letters[x].upper())
                 key = rotate_to_A(alpha, key, random_state_letters[x])
                 x += 1
             else:
@@ -150,7 +150,7 @@ class Disk(QWidget):
         self.p = QLineEdit(self)
         self.p.setGeometry(30, 400, 30, 20)
         
-        lblpas = QLabel('Enter period (for 5-th mode): ', self)
+        lblpas = QLabel('Enter password (for 5-th mode): ', self)
         lblpas.move(30, 420)
 
         self.pas = QLineEdit(self)
@@ -178,7 +178,7 @@ class Disk(QWidget):
             
         j = self.k.text().upper().split(' ')
         checker = [i for i in self.k.text().upper().split(' ') if i in alf]
-        if ((len(alf) == len(j)) and (len(set(j)) == len(j)) and (len(checker) == len(j)) and (len(self.txt.text()) > 0)):
+        if ((len(alf) == len(j)) and (len(set(j)) == len(j)) and (len(self.txt.text()) > 0)):
             if self.cb.isChecked() == True:
                 
                 if self.combo.currentText() == "Mode 1": 
@@ -187,17 +187,23 @@ class Disk(QWidget):
                 if self.combo.currentText() == "Mode 2": 
                     self.res.setText(str(Alberti_second(alf, j, self.txt.text().upper(), decode = True)))
                     
-                if self.combo.currentText() == "Mode 3":                   
-                    self.res.setText(str(Alberti_third(alf, j, self.txt.text().upper(), self.indic.text().upper(), decode = True)))
+                if self.combo.currentText() == "Mode 3":
+                    try:
+                        self.res.setText(str(Alberti_third(alf, j, self.txt.text().upper(), self.indic.text().upper(), decode = True)))
+                    except (ValueError, AttributeError):
+                        self.res.setText('Invalid indicator!')   
                     
                 if self.combo.currentText() == "Mode 4":
                     decode = True
                     s = self.k.text().split(' ')
-                    self.res.setText(str(Alberti_fourth(alf, j, self.txt.text(), decode, self.p.text())))
+                    link = 0
+                    self.res.setText(str(Alberti_fourth(alf, s, self.txt.text(), decode, link)))
                     
                 if self.combo.currentText() == "Mode 5":
-                    self.res.setText(str(Alberti_fifth(alf, j, self.txt.text().upper(), self.pas.text().upper(), decode = True)))
-                    
+                    try:
+                        self.res.setText(str(Alberti_fifth(alf, j, self.txt.text().upper(), self.pas.text().upper(), decode = True)))
+                    except:
+                        self.res.setText('Invalid password!)')                                        
             else:
                 
                 if self.combo.currentText() == "Mode 1": 
@@ -206,20 +212,27 @@ class Disk(QWidget):
                 if self.combo.currentText() == "Mode 2": 
                     self.res.setText(str(Alberti_second(alf, j, self.txt.text().upper(), decode = False)))
                     
-                if self.combo.currentText() == "Mode 3": 
-                    self.res.setText(str(Alberti_third(alf, j, self.txt.text().upper(), self.indic.text().upper(), decode = False)))
+                if self.combo.currentText() == "Mode 3":
+                    try:
+                        self.res.setText(str(Alberti_third(alf, j, self.txt.text().upper(), self.indic.text().upper(), decode = False)))
+                    except (ValueError, AttributeError):
+                        self.res.setText('Invalid indicator!')
+                        
                     
                 if self.combo.currentText() == "Mode 4":
                     decode = False
-                    s = self.k.text().split(' ')
-                    self.res.setText(str(Alberti_fourth(alf, j, self.txt.text(), decode, int(self.p.text()))))
+                    try:
+                        self.res.setText(str(Alberti_fourth(alf, j, self.txt.text().upper(), decode, int(self.p.text()))))
+                    except (ValueError, AttributeError):
+                        self.res.setText('Invalid period!')
                     
                 if self.combo.currentText() == "Mode 5":
-                    self.res.setText(str(Alberti_fifth(alf, j, self.txt.text().upper(), self.pas.text().upper(), decode = False)))
+                    try:
+                        self.res.setText(str(Alberti_fifth(alf, j, self.txt.text().upper(), self.pas.text().upper(), decode = False)))
+                    except:
+                        self.res.setText('Invalid password!)')
         else:
-            self.res.setText('Invalid input!')    
-        
-
+            self.res.setText('Invalid key or text!')
 
 if __name__ == '__main__':
 
